@@ -1,0 +1,27 @@
+name: Update Artifact List
+on:
+  push:
+    paths:
+      - '*.png'
+  workflow_dispatch: # Дозволяє запустити вручну
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate JSON list
+        run: |
+          echo "[" > artifacts.json
+          ls *.png | sed 's/.*/"&",/' | sed '$ s/,$//' >> artifacts.json
+          echo "]" >> artifacts.json
+      - name: Commit and Push
+        run: |
+          git config --global user.name "Shadow Altar"
+          git config --global user.email "altar@shadow.com"
+          git add artifacts.json
+          git commit -m "Update artifact list" || exit 0
+          git push
+          
